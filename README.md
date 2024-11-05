@@ -39,14 +39,26 @@ Original I2C clock when connected to the original board is about 16kHz, but it w
 
 change brigtness simulates the original hardware buttons for manualy setting the brightness, rise simulation is the fading before the alarm sounds.
 
+## Side buttons
+
+Side buttons are split up to two Connectors. The buttons connect a resistor between the leads when pushed.<br>
+They could be made usable by connecting the cables to analog inputs.<br>
+Since the ESP boards only have one single ADC pin, I ordered a CD74HC4067 Multiplexer breakout. Testing contiues...
+
+## Display
+
+Projector Style backlit LCD Display, which throws the digits against the matt front glass.
+
+- Backlight LED are the grey (-) and white (+) wire, driven with PWM modulated 3V.
+
+- Custom LCD, 4 Rows, 17 Segments. 60Hz modulated Squarewave.<br>
+When looking "at the projector" bottom, Pin 1 is to the right.<br><br>
+Pin 1-4 = Rows, 5-17 = Segments.
+- Alternatively for the display I tried a 7-segment module, but when held behind the front it got to much defused...
+
 ## Things to do
 
-Iam planing to make the buttons on the sides usable:<br>
-Since the ESP boards only have one single ADC pin, I ordered a CD74HC4067 Multiplexer breakout board...
-
-I had a look to somehow get the display working but got discouraged since there are 18 pins controlled directly by the MCU.<br>
-Also the capacitive buttons on the front are using a dedicaded processor on its board.<br>
-Latter would be feasable maybe, although the connected ribbon cable ends with a inductor for every wire which might become a nightmare.<br>
-Maybe it have to be decoupled for the capacitive buttons to work...
-
-Alternatively for the display I tried a 7-segment module, but when held behind the front it got to much defused...
+The capacitive buttons on the front are using a dedicaded processor on its board.<br>
+Latter it would be feasable to get working maybe, although the connected ribbon cable ends with a inductor for every wire which might become a nightmare.<br>
+Maybe it have to be decoupled for the capacitive buttons to work...<br>
+Had a short go with it nevertheless: There ist one squarewave 50% duty cycle and two signals which look like data, although Iam missing a clocksignal...
