@@ -54,7 +54,8 @@ Projector Style backlit LCD Display, which throws the digits against the matt fr
 - Custom LCD, 4 Rows, 17 Segments. 60Hz modulated Squarewave.<br>
 When looking "at the projector" bottom, Pin 1 is to the right.<br><br>
 Pin 1-4 = Rows, 5-17 = Segments.
-- Alternatively for the display I tried a 7-segment module, but when held behind the front it got to much defused...
+- [PCF8562](https://www.nxp.com/docs/en/data-sheet/PCF8562.pdf) or [PCA8561](https://www.nxp.com/docs/en/data-sheet/PCA8561.pdf) are cheap and looking promising.<br>
+  may need a TSOP48 breakout board, or something custom.
 
 ## Things to do
 
