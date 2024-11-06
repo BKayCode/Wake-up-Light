@@ -29,15 +29,15 @@ Address of the module is 0x51
 
 | command  | I2C packet 1 | I2C packet 2 | 
 | ------------- | ------------- | ------------- |
-| change brigtness  | `0x00 0x02 REPSTART brightnessLevel[0x00:0x20]`   |  `0x00 0x04 REPSTART 0xAA` |
-| rise simulation  | `0x00 0x02 REPSTART riseBrightness[0x00:0x20] riseMinutes[0x00:0x2D]`   |   |
-| read brightness  | `0x00 0x05` | request 1 byte |
+| change brigtness  | `Write0x51 0x00 0x02 REPSTART brightnessLevel[0x00:0x14]`   |  `Write0x51 0x00 0x04 REPSTART 0xAA` |
+| rise simulation  | `Write0x51 0x00 0x02 REPSTART riseBrightness[0x01:0x14] riseMinutes[0x01:0x2D]`   |   |
+| read brightness  | `Write0x51 0x00 0x05` | `Read0x51` |
 
 There is a quirk where if the lamp is off, you have to send a empty packet to let it receive packets. Maybe some sort of sleep...<br>
 Also it really wants repeated start conditions after 2 bytes.<br>
 Original I2C clock when connected to the original board is about 16kHz, but it works fine with standard 100kHz.
 
-change brigtness simulates the original hardware buttons for manualy setting the brightness, rise simulation is the fading before the alarm sounds.
+change brigtness simulates the original hardware buttons on the side for manualy setting the brightness, rise simulation is the fading before the alarm sounds.
 
 ## Display
 
