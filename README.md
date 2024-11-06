@@ -39,12 +39,6 @@ Original I2C clock when connected to the original board is about 16kHz, but it w
 
 change brigtness simulates the original hardware buttons for manualy setting the brightness, rise simulation is the fading before the alarm sounds.
 
-## Side buttons
-
-Side buttons are split up to two Connectors. The buttons connect a resistor between the leads when pushed.<br>
-They could be made usable by connecting the cables to analog inputs.<br>
-Since the ESP boards only have one single ADC pin, I ordered a CD74HC4067 Multiplexer breakout. Testing contiues...
-
 ## Display
 
 Projector Style backlit LCD Display, which throws the digits against the matt front glass.
@@ -53,13 +47,42 @@ Projector Style backlit LCD Display, which throws the digits against the matt fr
 
 - Custom LCD, 4 Rows, 17 Segments. 60Hz modulated Squarewave.<br>
 When looking "at the projector" bottom, Pin 1 is to the right.<br><br>
-Pin 1-4 = Rows, 5-17 = Segments.
+Pin 1-4 = Rows, 5-20 = Segments. Pin pitch 2,00mm, 20 Pins.
+
 - [PCF8562](https://www.nxp.com/docs/en/data-sheet/PCF8562.pdf) or [PCA8561](https://www.nxp.com/docs/en/data-sheet/PCA8561.pdf) are cheap and looking promising.<br>
-  may need a TSOP48 breakout board, or something custom.
+  may need a TSOP48 breakout board, or something custom. 
+
+## Side buttons
+
+- Side buttons are split up to two Connectors. The buttons connect a resistor between the leads when pushed.
+
+They could be made usable by connecting the cables to analog inputs.<br>
+Since the ESP boards only have one single ADC pin, I ordered a CD74HC4067 Multiplexer breakout. Testing contiues...
+
+## Front buttons
+
+- Capacitive touch buttons, conveniently ready to use via I2C Bus. <br>
+- Polling frequency 60Hz, I2C speed on original board is up to 250kHz, but takes heavily advantace of clock stretching. Testing if working with standard 100kHz.<br>
+- The pleasent clicky sound on touch is generated with a piezzo: 3,3V, 5kHz for 3ms duration.<br>
+
+| command  | I2C packet
+| ------------- | ------------- |
+| validatePush  | `Write0x75 0x3D REPSTART Read0x75 validTouch[0x00:0x01]` | 
+| pushedButton  | `Write0x75 0x31 REPSTART Read0x75 pushedButton[0x00:0x08]`|
+
+The button push is only accepted if validatePush == 1.
+
+pushedButton values:
+|   |   |   |  |
+| --- | --- | --- | --- |
+| Left | Menu	 | Select	 | Right |
+| 0x04	| 	0x08	| 	0x01	| 	0x02 |
+
+On the original board on the ribbon is a 1Hz square carried, the I2C polling takes only place on high state...
+
 
 ## Things to do
 
-The capacitive buttons on the front are using a dedicaded processor on its board.<br>
-Latter it would be feasable to get working maybe, although the connected ribbon cable ends with a inductor for every wire which might become a nightmare.<br>
-Maybe it have to be decoupled for the capacitive buttons to work...<br>
-Had a short go with it nevertheless: There ist one squarewave 50% duty cycle and two signals which look like data, although Iam missing a clocksignal...
+Get the alarm sounds working, but for the moment ist my bottom priority - still trusting my smartphone more for now. :D<br>
+The Amplifier, FM module and I think sound module is located on the power board and seems to be controlled from the main MCU board via the ribbon cable.<br>
+On that same board are pads labeled I2C, but they carry no signals. Also the traces go directly to the ribbon connector...
