@@ -1,13 +1,13 @@
 # Wake-up-Light
 This is a hack of an Philips Wake-up Light.<br>
-I have a old model (HF3520) with no ability to completely turn off the display and would like to have it connected to NTP.
+I have a old model (HF3520) with no ability to completely turn off the display and would like to automaticly set the Time via NTP.
 
-For now I just reverse engineered the Lamp part and wrote a simple script to get the light working.
-
-Please note the I2C Bus is 5V, so when connecting it to a ESP8266/ESP32 use a levelshifter.
+For now I just reverse engineered the Lamp part and side buttons, wrote a simple script to get the light working.
+Iam using a Wemos D1 mini to controll everything.
 
 ## Light module
 The light part of the Wake-up Light is a separate module connected to 24V and 5V, controlled by I2C.
+Please note the I2C Bus is 5V, so when connecting it to a ESP8266/ESP32 use a levelshifter.
 
 Pinout of the connector from light module:
 
@@ -54,10 +54,13 @@ Pin 1-4 = Rows, 5-20 = Segments. Pin pitch 2,00mm, 20 Pins.
 
 ## Side buttons
 
-- Side buttons are split up to two Connectors. The buttons connect a resistor between the leads when pushed.
+- Side buttons are split up to two Connectors: Left and right buttons. They form a resistor ladder.
 
-They could be made usable by connecting the cables to analog inputs.<br>
-Since the ESP boards only have one single ADC pin, I ordered a CD74HC4067 Multiplexer breakout. Testing contiues...
+Since the ESP boards only have one single ADC pin, I connected them to a CD74HC4067 Multiplexer breakout.
+![alt text](https://github.com/BKayCode/Wake-up-Light/blob/main/s-l1600-1.jpg?raw=true)<br>
+Connect one pin of the left connector to Y0, right to Y1, connect GND,EN,S1-3 to ESP GND, S0 to D4, VCC to 3,3V, Z to analog pin of the ESP.
+The same Pins on Y0 and Y1 need to be connected to 3,3V with a 10k resistor to bias them. The other pin connect to ground.
+
 
 ## Front buttons
 
