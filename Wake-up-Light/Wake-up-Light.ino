@@ -7,7 +7,7 @@ credit to noiasca for providing the basic structure of the NTP implementation
 
 #ifndef STASSID
 #define STASSID "ssid"          // set your SSID
-#define STAPSK "wifiPassword"       // set your wifi password
+#define STAPSK "password"       // set your wifi password
 #endif
 
 /* Configuration of NTP */
@@ -29,39 +29,39 @@ credit to noiasca for providing the basic structure of the NTP implementation
 
 #include <sntp.h>  // sntp_servermode_dhcp()
 
-#include "LampControl.h"
+#include "lampControl.h"
+#include "sideButtons.h"
 
 /* Globals */
 time_t now;                          // this are the seconds since Epoch (1970) - UTC
 tm tm;                             // the structure tm holds time information in a more convenient way *
 
-void showTime() {
-  time(&now); // read the current time
-  localtime_r(&now, &tm);             // update the structure tm with the current time
-  Serial.print("year:");
-  Serial.print(tm.tm_year + 1900);    // years since 1900
-  Serial.print("\tmonth:");
-  Serial.print(tm.tm_mon + 1);        // January = 0 (!)
-  Serial.print("\tday:");
-  Serial.print(tm.tm_mday);           // day of month
-  Serial.print("\thour:");
-  Serial.print(tm.tm_hour);           // hours since midnight 0-23
-  Serial.print("\tmin:");
-  Serial.print(tm.tm_min);            // minutes after the hour 0-59
-  Serial.print("\tsec:");
-  Serial.print(tm.tm_sec);            // seconds after the minute 0-61*
-  Serial.print("\twday");
-  Serial.print(tm.tm_wday);           // days since Sunday 0-6
-  if (tm.tm_isdst == 1)               // Daylight Saving Time flag
-    Serial.print("\tDST");  
-  else
-    Serial.print("\tstandard");
-  Serial.println();
-}
+// set the desired Time when you want to be woken by the light
+byte wakeupHour = 6;
+byte wakeupMinute = 25;
+
+// set desired brightnesslevel of the rise simulation [1:20]
+byte riseBrightness = 10;
+// set the minutes for how long to fade to desired riseBrightness
+byte risetime = 20;
+
+byte riseHour;
+byte riseMinute;
+
+
+/*uint32_t sntp_startup_delay_MS_rfc_not_less_than_60000 ()
+{
+    //info_sntp_startup_delay_MS_rfc_not_less_than_60000_has_been_called = true;
+    return 86400000; // 60s (or lwIP's original default: (random() % 5000))
+}*/
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("\nWake-up-Light");
+  Serial.println("\nNTP TZ DST - bare minimum");
+
+  pinMode(D4, OUTPUT);  // Declare analog multiplexer Pin
+
+  Wire.begin();
 
   // sntp_servermode_dhcp(0);      // Do not use Routers NTP
 
@@ -85,50 +85,63 @@ void setup() {
   }
   Serial.println("\nWiFi connected");
 
-}
-
-// set the desired Time when you want to be woken by the light
-byte wakeupHour = 6;
-byte wakeupMinute = 40;
-
-// set desired brightnesslevel of the rise simulation [1:20]
-byte riseBrightness = 12;
-// set the minutes for how long to fade to desired riseBrightness [1:40]
-byte risetime = 20;
-
-// set values equal, so the timedifference does not calculate over and over again
-byte riseHour = wakeupHour;
-byte riseMinute = wakeupMinute;
-
-
-
-void loop() {
-  
-  unsigned long time_now = millis();
-  while(millis() < time_now + 1000){
-        //wait approx. [period] ms
-    }
-  showTime();
-
   // calculate time difference to start rise simulation timely
-  if ((riseHour == wakeupHour) && (riseMinute == wakeupMinute)){
-    riseHour = (wakeupHour * 60 + wakeupMinute - risetime) / 60;
-    riseMinute = (wakeupHour * 60 + wakeupMinute - risetime) % 60;
-
+  riseHour = (wakeupHour * 60 + wakeupMinute - risetime) / 60;
+  riseMinute = (wakeupHour * 60 + wakeupMinute - risetime) % 60;
     Serial.print("riseHour = ");
     Serial.print(riseHour);
     Serial.print(", riseMinute = ");
     Serial.print(riseMinute);
+
+  //timeval tv = { 1731301490, 0 };     // Test clock with manual set Time - Epoch
+  //settimeofday(&tv, nullptr);
+
+}
+
+void loop() {
+  //wait approx. 1 second
+  unsigned long time_now = millis();
+  while(millis() < time_now + 1000){
+  doButtons();
   }
 
+  time(&now); // read the current time
+  localtime_r(&now, &tm);             // update the structure tm with the current time
+
+  // Print time on Serial
+  showTime();
+
   // send command to slowly brighten the lamp (hardwired to only execute on Mondays to Fridays)
-  if ((tm.tm_wday > 0) && (tm.tm_wday < 6) && (tm.tm_hour == riseHour) && (tm.tm_min == riseMinute) && (tm.tm_sec == 0)){
+  if ((tm.tm_wday > 0) && (tm.tm_wday < 5) && (tm.tm_hour == riseHour) && (tm.tm_min == riseMinute) && (tm.tm_sec == 0)){
     startRise(risetime, riseBrightness);
   }
 
   // turn off the light at 6:45 on Mondays to Fridays, since there are no buttons implemented / connected yet...
-  if ((tm.tm_wday > 0) && (tm.tm_wday < 6) && (tm.tm_hour == 6) && (tm.tm_min == 45) && (tm.tm_sec == 0)){
+  if ((tm.tm_wday > 0) && (tm.tm_wday < 5) && (tm.tm_hour == 6) && (tm.tm_min == 45) && (tm.tm_sec == 0)){
     sendBrightness(0);
   }
+
+}
+
+void showTime() {
+  Serial.print("year:");
+  Serial.print(tm.tm_year + 1900);    // years since 1900
+  Serial.print("\tmonth:");
+  Serial.print(tm.tm_mon + 1);        // January = 0 (!)
+  Serial.print("\tday:");
+  Serial.print(tm.tm_mday);           // day of month
+  Serial.print("\thour:");
+  Serial.print(tm.tm_hour);           // hours since midnight 0-23
+  Serial.print("\tmin:");
+  Serial.print(tm.tm_min);            // minutes after the hour 0-59
+  Serial.print("\tsec:");
+  Serial.print(tm.tm_sec);            // seconds after the minute 0-61*
+  Serial.print("\twday");
+  Serial.print(tm.tm_wday);           // days since Sunday 0-6
+  if (tm.tm_isdst == 1)               // Daylight Saving Time flag
+    Serial.print("\tDST");  
+  else
+    Serial.print("\tstandard");
+  Serial.println();
 
 }
