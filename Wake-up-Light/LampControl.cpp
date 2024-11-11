@@ -1,4 +1,4 @@
-#include "LampControl.h"
+#include "lampControl.h"
 byte error;
 byte currentState = 0;
 
@@ -10,7 +10,7 @@ Wire.endTransmission();
 // set error to arbitrary non zero value to repeat sending until receiver acknowledged
 error = 7;
 
-while (error != 0) {
+//while (error != 0) {
 
     Wire.beginTransmission(0x51);
     Wire.write(0x00);
@@ -19,6 +19,7 @@ while (error != 0) {
     Wire.beginTransmission(0x51);
     Wire.write(riseBrightness);
     Wire.write(risetime);
+    Wire.write(0xFF);
     error = Wire.endTransmission();
 
   Serial.print("Sending risetime ");
@@ -28,7 +29,7 @@ while (error != 0) {
   Serial.print(", error: ");
   Serial.println(error);
 
- if (error == 0){
+ /* if (error == 0){
     break;
     currentState = 1;
   }
@@ -38,7 +39,8 @@ while (error != 0) {
     Wire.beginTransmission(0x51);             // Wakeup Packet from dark
     Wire.endTransmission();
   }
-}
+}*/
+byte currentState = 1;
 
 }
 
@@ -58,10 +60,11 @@ while (error != 0) {
     Wire.write(0x02);
     Wire.endTransmission(false);
     Wire.beginTransmission(0x51);
-    Wire.write(sendBrightness);
+    Wire.write(sendBrightness);//                             <-  Ändern während Lampe Ein  0x01 bis 0x14
     error = Wire.endTransmission();
 }
 
+//delay(300);
 error = 7;
 
   while (error != 0){
