@@ -41,7 +41,7 @@ byte wakeupHour = 6;
 byte wakeupMinute = 25;
 
 // set desired brightnesslevel of the rise simulation [1:20]
-byte riseBrightness = 10;
+byte riseBrightness = 8;
 // set the minutes for how long to fade to desired riseBrightness
 byte risetime = 20;
 
@@ -109,15 +109,15 @@ void loop() {
   localtime_r(&now, &tm);             // update the structure tm with the current time
 
   // Print time on Serial
-  showTime();
+  //showTime();
 
   // send command to slowly brighten the lamp (hardwired to only execute on Mondays to Fridays)
-  if ((tm.tm_wday > 0) && (tm.tm_wday < 5) && (tm.tm_hour == riseHour) && (tm.tm_min == riseMinute) && (tm.tm_sec == 0)){
+  if ((tm.tm_wday > 0) && (tm.tm_wday < 6) && (tm.tm_hour == riseHour) && (tm.tm_min == riseMinute) && (tm.tm_sec == 0)){
     startRise(risetime, riseBrightness);
   }
 
   // turn off the light at 6:45 on Mondays to Fridays, since there are no buttons implemented / connected yet...
-  if ((tm.tm_wday > 0) && (tm.tm_wday < 5) && (tm.tm_hour == 6) && (tm.tm_min == 45) && (tm.tm_sec == 0)){
+  if ((tm.tm_wday > 0) && (tm.tm_wday < 6) && (tm.tm_hour == 6) && (tm.tm_min == 45) && (tm.tm_sec == 0)){
     sendBrightness(0);
   }
 
